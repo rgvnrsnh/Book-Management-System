@@ -20,7 +20,14 @@ router.post("/login", userController.loginUser);
 //post book
 router.post("/books", auth.authentication, bookController.createBook);
 
+//get books
+router.get("/books", auth.authentication, bookController.getBooks);
 
+//get complete book details
+router.get("/books/:bookId", auth.authentication, bookController.getBookPlusReview);
+
+//delete book
+router.delete("/books/:bookId", auth.authentication, bookController.deleteBook);
 
 
 
