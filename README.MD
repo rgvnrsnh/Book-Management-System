@@ -1,6 +1,3 @@
-# project-booksManagementGroup46
-# Radon
-
 ## Project - Books Management
 
 ### Key points
