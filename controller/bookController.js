@@ -237,6 +237,92 @@ const deleteBook = async function (req, res) {
 }
 
 
+const updateBookDetails = async function (req, res) {
+    try {
+
+        const bookid = req.params.bookid;
+
+        const dataToUpdate = req.body;
+
+        if (invalidrequest(dataToUpdate)) {
+            return res.status(200).send({
+                message: "invalid Request"
+            });
+        }
+
+        if (!mongoose.isValidObjectId(bookid)) {
+            return res.status(200).send({
+                message: "invalid bookid",
+            });
+        }
+
+        const dbbook = await Book.find({ _id: bookid });
+
+        console.log(dbbook);
+
+        if (dbbook.length != 1) {
+            return res.status(200).send({
+                message: "no such Book found",
+            });
+        }
+
+        if (dbbook.isDeleted == true) {
+            return res.status(404).send({
+                message: "this book is already deleted"
+            });
+        }
+
+
+        const { title, excerpt, ISBN } = dataToUpdate;
+
+        if (!invalidrequest(title)) {
+            const ispresent = await Book.find({ title });
+
+            if (ispresent.length > 0) {
+                return res.status(200).send({
+                    message: "this title already exist for a book"
+                });
+            }
+            else {
+                dbbook[0].title = title;
+            }
+        }
+
+
+        if (!invalidrequest(ISBN)) {
+            const ispresent2 = await Book.find({ ISBN });
+
+            if (ispresent2.length > 0) {
+                return res.status(200).send({
+                    message: "this ISBN already exist for a book"
+                });
+            } else {
+                dbbook[0].ISBN = ISBN;
+            }
+        }
+
+        if (!invalidrequest(excerpt)) {
+            dbbook[0].excerpt = excerpt;
+        }
+
+        dbbook[0]["updatedAt"] = Date.now();
+
+        const updateddata = await dbbook[0].save();
+
+        return res.status(201).send({
+            status: true,
+            message: "updated successfully",
+            data: updateddata,
+        });
+
+    }
+    catch (error) {
+        return res.status(500).send({
+            message: error.message,
+        });
+    }
+}
+
 
 
 
@@ -245,5 +331,6 @@ module.exports.createBook = createBook;
 module.exports.getBooks = getBooks;
 module.exports.getBookPlusReview = getBookPlusReview;
 module.exports.deleteBook = deleteBook;
+module.exports.updateBookDetails = updateBookDetails;
 
 
