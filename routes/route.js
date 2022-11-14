@@ -9,6 +9,9 @@ const router = new express.Router();
 
 router.get("/check", (req, res) => {
     console.log("router working");
+    res.status(200).send({
+        message: "working properly",
+    });
 });
 
 /**********   USER  ***************/
@@ -17,6 +20,9 @@ router.post("/register", userController.createUser);
 
 // login User
 router.post("/login", userController.loginUser);
+
+//recommend books
+router.get("/:userId/recommend", auth.authentication, userController.bookRecommendation);
 
 
 /**********   BOOK  ***************/

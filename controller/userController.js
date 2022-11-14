@@ -25,7 +25,7 @@ const createUser = async function (req, res) {
             });
         };
 
-        const { title, name, phone, email, password, address } = req.body;
+        const { title, name, phone, email, password, address, booktypes } = req.body;
 
         if (!["Mr", "Mrs", "Miss"].includes(title)) {
             return res.status(200).send({
@@ -63,9 +63,14 @@ const createUser = async function (req, res) {
             });
         };
 
+        if (booktypes.length < 1) {
+            return res.status(200).send({
+                message: "booktypes must contain atleast one genre",
+            });
+        };
+
         const createdAt = Date.now();
         data["createdAt"] = createdAt;
-
 
         const checkuser = await User.find(data);
 
@@ -134,6 +139,60 @@ const loginUser = async function (req, res) {
     }
 };
 
+const bookRecommendation = async function (req, res) {
+
+    try {
+
+        const token = req.header("x-api-token");
+
+        const tokendata = await jwt.verify(token, process.env.SECRET_KEY);
+
+        const userid = tokendata.userId;
+
+        const checkuser = await User.find({ _id: userid });
+
+        const liking = checkuser[0].booktypes;
+
+        if (liking == undefined || liking == null) {
+            return res.status(200).send({
+                message: "no matching book found",
+            });
+        }
+
+        let filter = { isDeleted: false };
+
+        const booksfound = await Book.find(filter);
+
+        var BookstoRecommend = [];
+
+        for (let likes of liking) {
+            for (let books of booksfound) {
+                if (books.subcategory.includes(likes)) {
+                    BookstoRecommend.push(books);
+                }
+            }
+        }
+
+        if (BookstoRecommend.length == 0) {
+            return res.status(200).send({
+                message: "no matching book found",
+            });
+        }
+        else {
+            return res.status(200).send({
+                message: "recommended books are",
+                books: BookstoRecommend,
+            });
+        }
+    }
+    catch (error) {
+        return res.status(500).send({
+            message: error.message,
+        });
+    }
+}
+
 
 module.exports.loginUser = loginUser;
 module.exports.createUser = createUser;
+module.exports.bookRecommendation = bookRecommendation;

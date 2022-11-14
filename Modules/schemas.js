@@ -8,7 +8,8 @@ const user = new mongoose.Schema(
         email: { type: String, required: true, unique: true },
         password: { type: String, required: true, minLength: 8, maxLength: 15 },
         address: { type: [String] },
-        createdAt: { type: Date }
+        createdAt: { type: Date },
+        booktypes: { type: [String] }
     },
     { timestamps: true }
 );
